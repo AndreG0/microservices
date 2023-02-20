@@ -1,6 +1,6 @@
 spring:
   application:
-    name: motorcycle-service
+    name: eureka-service
   cloud:
     config:
       enabled: true

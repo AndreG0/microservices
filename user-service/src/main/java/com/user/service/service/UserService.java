@@ -45,13 +45,13 @@ public class UserService {
        return motorcycles;
     }
 
-//Feign
+//Feign client
     public Car saveCar(int userId, Car car){
       car.setUserId(userId);
       Car newCar = carFeignClient.save(car);
       return newCar;
     }
- //Feign
+ //Feign client
     public Motorcycle saveMotorcycle(int userId, Motorcycle motorcycle){
         motorcycle.setUserId(userId);
         Motorcycle newMotorcycle = motorcycleFeignClient.save(motorcycle);
