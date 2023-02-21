@@ -5,6 +5,7 @@ import com.user.service.entity.User;
 import com.user.service.models.Car;
 import com.user.service.models.Motorcycle;
 import com.user.service.service.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,7 @@ public class UserController {
    }
 
 
-
+    @CircuitBreaker(name = "carsCB",fallbackMethod = "fallBackGetCars")
     @GetMapping("/cars/{userId}")
     public ResponseEntity<List<Car>> carList(@PathVariable("userId")int id){
        User user = userService.getUserById(id);
@@ -70,7 +71,7 @@ public class UserController {
        return ResponseEntity.ok(cars);
    }
 
-
+    @CircuitBreaker(name = "motorcyclesCB",fallbackMethod = "fallBackGetMotorcycles")
     @GetMapping("/motorcycle/{userId}")
     public ResponseEntity<List<Motorcycle>> motorcycleList(@PathVariable("userId")int id){
         User user = userService.getUserById(id);
@@ -82,13 +83,14 @@ public class UserController {
     }
 
 //FEIGN SAVE CAR
+    @CircuitBreaker(name = "carsCB",fallbackMethod = "fallBackSaveCar")
     @PostMapping("/car/{userId}")
     public ResponseEntity<Car> saveCar(@PathVariable("userId")int userId, @RequestBody Car car){
        Car newCar = userService.saveCar(userId, car);
        return ResponseEntity.ok(newCar);
     }
 //FEIGN SAVE MOTORCYCLE
-
+    @CircuitBreaker(name = "motorcyclesCB",fallbackMethod = "fallBackSaveMotorcycle")
     @PostMapping("/motorcycle/{userId}")
     public ResponseEntity<Motorcycle> saveMotorcycle(@PathVariable("userId")int userId, @RequestBody Motorcycle motorcycle){
        Motorcycle newMotorcycle = userService.saveMotorcycle(userId, motorcycle);
@@ -96,9 +98,30 @@ public class UserController {
     }
 
 //VEHICLES LIST BY USER
+    @CircuitBreaker(name = "allCB",fallbackMethod = "fallBackGetAll")
     @GetMapping("/all/{userId}")
     public ResponseEntity<Map<String, Object>> listOfAllVehicles(@PathVariable("userId") int userId){
        Map<String, Object> result = userService.getUserAndVehicles(userId);
        return ResponseEntity.ok(result);
+    }
+
+    //CIRCUIT-BREAKER METHODS - fault tolerance
+    private ResponseEntity<List<Car>> fallBackGetCars(@PathVariable ("userId")int id, RuntimeException exception){
+       return new ResponseEntity("The user: " + id + " has cars in repair", HttpStatus.OK);
+    }
+
+    private ResponseEntity<List<Car>> fallBackSaveCar(@PathVariable ("userId") int id,@RequestBody Car car, RuntimeException exception){
+       return new ResponseEntity("The user: " + id + " has no money for cars", HttpStatus.OK);
+    }
+
+    private ResponseEntity<List<Motorcycle>> fallBackGetMotorcycles(@PathVariable ("userId")int id, RuntimeException exception){
+        return new ResponseEntity("The user: " + id + " has motorcycles in repair", HttpStatus.OK);
+    }
+
+    private ResponseEntity<List<Motorcycle>> fallBackSaveMotorcycle(@PathVariable ("userId") int id,@RequestBody Motorcycle motorcycle, RuntimeException exception){
+        return new ResponseEntity("The user: " + id + " has no money for motorcycles", HttpStatus.OK);
+    }
+    private ResponseEntity<Map<String, Object>> fallBackGetAll(@PathVariable("userId") int id, RuntimeException exception){
+       return new ResponseEntity("The user: " + id + " has vehicles under repair", HttpStatus.OK);
     }
 }
