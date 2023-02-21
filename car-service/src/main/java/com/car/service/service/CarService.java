@@ -14,29 +14,29 @@ public class CarService {
     private CarRepository carRepository;
 
 
-    public boolean existById(int id){
+    public boolean existById(int id) {
         return carRepository.existsById(id);
     }
 
-   public List<Car> getAll(){
-       return carRepository.findAll();
-   }
+    public List<Car> getAll() {
+        return carRepository.findAll();
+    }
 
-   public Car getCarById(int id){
-       return carRepository.findById(id).orElse(null);
-   }
+    public Car getCarById(int id) {
+        return carRepository.findById(id).orElse(null);
+    }
 
-   public Car save(Car car){
-       Car newCar = carRepository.save(car);
-       return newCar;
-   }
+    public Car save(Car car) {
+        Car newCar = carRepository.save(car);
+        return newCar;
+    }
 
-   public List<Car> byUserId(int userId){
-       return carRepository.findByUserId(userId);
-   }
+    public List<Car> byUserId(int userId) {
+        return carRepository.findByUserId(userId);
+    }
 
-   public void delete(int id){
-       carRepository.deleteById(id);
-   }
+    public void delete(int id) {
+        carRepository.deleteById(id);
+    }
 
 }
