@@ -2,13 +2,14 @@ package com.user.service.service;
 
 
 import com.user.service.entity.User;
+import com.user.service.feignclients.BikeFeignClient;
 import com.user.service.feignclients.CarFeignClient;
 import com.user.service.feignclients.MotorcycleFeignClient;
+import com.user.service.models.Bike;
 import com.user.service.models.Car;
 import com.user.service.models.Motorcycle;
 import com.user.service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,32 +33,46 @@ public class UserService {
     @Autowired
     private MotorcycleFeignClient motorcycleFeignClient;
 
+    @Autowired
+    private BikeFeignClient bikeFeignClient;
 
 
-//RestTemplate
+
+//RestTemplate CAR
     public List<Car> getCars(int userId){
         List<Car> cars = restTemplate.getForObject("http://car-service/car/user/" + userId, List.class);
         return cars;
     }
-//RestTemplate
+//RestTemplate MOTORCYCLE
     public List<Motorcycle> getMotorcycles(int userId){
         List<Motorcycle> motorcycles = restTemplate.getForObject("http://motorcycle-service/motorcycle/user/" + userId, List.class);
        return motorcycles;
     }
 
-//Feign client
+    //RestTemplate BIKE
+    public List<Bike> getBikes(int userId){
+        List<Bike> bikes = restTemplate.getForObject("http://bike-service/bike/user/"+ userId, List.class);
+        return bikes;
+    }
+
+//Feign client CAR
     public Car saveCar(int userId, Car car){
       car.setUserId(userId);
       Car newCar = carFeignClient.save(car);
       return newCar;
     }
- //Feign client
+ //Feign client MOTORCYCLE
     public Motorcycle saveMotorcycle(int userId, Motorcycle motorcycle){
         motorcycle.setUserId(userId);
         Motorcycle newMotorcycle = motorcycleFeignClient.save(motorcycle);
         return newMotorcycle;
     }
-
+    //Feign client BIKE
+    public Bike saveBike(int userId, Bike bike){
+        bike.setUserId(userId);
+        Bike newBike = bikeFeignClient.save(bike);
+        return newBike;
+    }
 
 //VEHICLES LIST BY USER
     public Map<String, Object> getUserAndVehicles(int userId){
@@ -81,8 +96,14 @@ public class UserService {
         }else {
             result.put("Motorcycles", motorcycles);
         }
+        List<Bike> bikes = bikeFeignClient.getBikes(userId);
+        if (bikes.isEmpty()){
+            result.put("Bikes", "The user does not have bikes");
+        }else {
+            result.put("Bikes", bikes);
+        }
 
-        return result;
+       return result;
     }
 
 
