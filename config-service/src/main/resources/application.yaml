@@ -5,7 +5,7 @@ spring:
     config:
       server:
         git:
-          default-label: bike-service
+          default-label: scooter
           uri: https://github.com/AndreG0/microservices
           search-paths: config-data
   application:

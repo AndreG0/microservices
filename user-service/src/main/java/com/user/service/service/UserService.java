@@ -5,9 +5,11 @@ import com.user.service.entity.User;
 import com.user.service.feignclients.BikeFeignClient;
 import com.user.service.feignclients.CarFeignClient;
 import com.user.service.feignclients.MotorcycleFeignClient;
+import com.user.service.feignclients.ScooterFeignClient;
 import com.user.service.models.Bike;
 import com.user.service.models.Car;
 import com.user.service.models.Motorcycle;
+import com.user.service.models.Scooter;
 import com.user.service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,8 @@ public class UserService {
     @Autowired
     private BikeFeignClient bikeFeignClient;
 
+    @Autowired
+    private ScooterFeignClient scooterFeignClient;
 
 
 //RestTemplate CAR
@@ -55,6 +59,12 @@ public class UserService {
         return bikes;
     }
 
+    //RestTemplate SCOOTER
+    public List<Scooter> getScooters(int userId){
+        List<Scooter> scooters = restTemplate.getForObject("http://scooter-service/scooter/user/"+ userId, List.class);
+        return scooters;
+    }
+
 //Feign client CAR
     public Car saveCar(int userId, Car car){
       car.setUserId(userId);
@@ -72,6 +82,13 @@ public class UserService {
         bike.setUserId(userId);
         Bike newBike = bikeFeignClient.save(bike);
         return newBike;
+    }
+
+    //Feign client SCOOTER
+    public Scooter saveScooter(int userId, Scooter scooter){
+        scooter.setUserId(userId);
+        Scooter newScooter = scooterFeignClient.save(scooter);
+        return newScooter;
     }
 
 //VEHICLES LIST BY USER
@@ -102,8 +119,14 @@ public class UserService {
         }else {
             result.put("Bikes", bikes);
         }
+        List<Scooter> scooters = scooterFeignClient.getScooters(userId);
+        if (scooters.isEmpty()){
+            result.put("Scooters", "The user does not have scooter");
+        }else {
+            result.put("Scooters", scooters);
+        }
 
-       return result;
+        return result;
     }
 
 
