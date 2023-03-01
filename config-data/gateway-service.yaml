@@ -28,3 +28,11 @@ spring:
           uri: lb://motorcycle-service
           predicates:
             - Path=/motorcycle/**
+        - id: bike-service
+          uri: lb://bike-service
+          predicates:
+            - Path=/bike/**
+         - id: scooter-service
+          uri: lb://scooter-service
+          predicates:
+            - Path=/scooter/**
